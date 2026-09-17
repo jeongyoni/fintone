@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>FinTone 전략 추천 시뮬레이터</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      padding: 40px;
+      color: #111827;
+    }
+    .result {
+      max-width: 720px;
+      margin: auto;
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 20px 0;
+    }
+    .tab-button {
+      flex: 1;
+      padding: 10px;
+      font-weight: 600;
+      background-color: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .tab-button.active {
+      background-color: #4338ca;
+    }
+    .chart-container {
+      display: none;
+    }
+    .chart-container.active {
+      display: block;
+    }
+    h2 {
+      color: #1e3a8a;
+      font-size: 20px;
+      margin-top: 32px;
+    }
+    img {
+      width: 100%;
+      border-radius: 12px;
+    }
+    table {
+      width: 100%;
+      margin-top: 16px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      text-align: center;
+      font-size: 14px;
+    }
+    th {
+      background-color: #e0e7ff;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="result">
+    <div id="strategy-content"></div>
+  </div>
+
+  <script>
+  
+  const representativeCompanies = {
+    construction: "현대건설, GS건설, 삼성물산, 대우건설, 코오롱글로벌",
+    metal: "포스코홀딩스, 고려아연, 현대제철, 풍산, 세아제강",
+    finance: "KB금융, 하나금융지주, 신한지주, 삼성증권, 우리금융지주",
+    bio: "유한양행, 삼성바이오, 한미약품, 대웅제약, 셀트리온",
+    semiconductor: "삼성전자, 에스케이하이닉스, DB하이텍, 엔비디아, 한미반도체",
+    broadcast: "CJ ENM, 스튜디오드래곤, 제이콘텐트리, NEW, SBS",
+    insurance: "삼성화재해상보험, 삼성생명, 한화생명, DB손해보험, 현대해상",
+    oil: "금호석유화학, LG화학, SK케미칼, 코오롱인더, 한화솔루션",
+    food: "cj제일제당, 농심, 오뚜기, spc삼립, 하이트진로",
+    energy: "SK이노베이션, 한국쉘석유, 한국전력공사, S-Oil, SK가스",
+    automobile: "현대차, 기아, 한국타이어, 테슬라, 현대모비스",
+    electronics: "엘지디스플레이, 이수페타시스, 엘지전자, LG이노텍, 삼성전기",
+    ict: "KT, SK텔레콤, LG유플러스, 현대오토에버, 삼성에스디에스",
+    ship: "한화오션, 삼성중공업, HMM, 한화에어로스페이스, HD한국조선해양",
+    airline: "대한항공, 아시아나항공, HMM, 현대글로비스, CJ대한통운"
+  };
+  const tShiftMap = {
+  "전자부품": "T+3",
+  "정보통신업": "T+3"
+};
+
+
+    const industryData = {
+      bio: {
+        name: "바이오",
+        model: "LightGBM",
+        threshold: 0.5,
+        avgReturn: "+3.5%",
+        sharpe: "0.52",
+        wordcloud: "바이오_wordcloud.png",
+        keywordNews: [
+          { date: "2025-04-02", news: "동물용 신약 개발 패스트트랙 도입… 대규모 R&D로 수출 5배 키운다", score: "0.821", return: "+4.93%",url: "https://biz.chosun.com/policy/policy_sub/2025/04/02/2NKXWFF3GRD5RHPCRYY6EVQRQ4/" },
+          { date: "2024-05-20", news: "HLB파나진, 'TIDES USA 2025'서 차세대 유전자 조절 기술 공개 및 수출 규모 확대", score: "1.981", return: "+5.3%" , url:"https://www.pharmnews.com/news/articleView.html?idxno=260404"}
+        ]
+      },
+      energy: {
+        name: "에너지",
+        model: "LightGBM",
+        threshold: 0.4,
+        avgReturn: "+2.8%",
+        sharpe: "0.48",
+        wordcloud: "에너지_wordcloud.png",
+        keywordNews: [
+          { date: "2024-01-02", news: "무역금융 공급 360조, 수출지원 예산 2.9조 ‘역대 최대’… “수출 다변화로 불확실성 대응”", score: "2.792", return: "+4.13%" ,url:"https://biz.chosun.com/policy/policy_sub/2025/01/02/MV6UJ6FIDZCLJBW55GDKO4D5I4/"},
+          { date: "2024-02-04", news: "급변하는 국내외 정세 변화 속 국내 태양광 산업에 큰 변화를 맞는 중요한 시기가 될 것으로 전망", score: "5.373", return: "+3.3%" ,url:"https://www.industrynews.co.kr/news/articleView.html?idxno=59738"}
+        ]
+      },
+      semiconductor: {
+    name: "반도체제조업",
+    model: "LightGBM",
+    threshold: 0.2,
+    avgReturn: "+4.1%",
+    sharpe: "0.45",
+    wordcloud: "반도체제조업_wordcloud.png",
+    keywordNews: [
+      {
+        date: "2025-01-05",
+        news: "이퀄원 이 기존 반도체 제조 공정을 활용한 실리콘 기반 양자 프로세서를 개발했다고 과학 전문 온라인 매체 라이브사이언스 가 4일 보도",
+        score: "5.359",
+        return: "+7.36%",
+        url: "https://www.g-enews.com/article/Global-Biz/2025/01/202501051326446246e250e8e188_1"
+      },
+      {
+        date: "2025-06-23",
+        news: "중국 반도체 자립화 최대 수혜자 SMIC, 세계 파운드리 3위로 올라서 중국 정부의 전폭적인 지원 아래 첨단 공정 개발과 생산 능력 확대",
+        score: "1.870",
+        return: "+5.4%",
+        url: "https://www.g-enews.com/article/Global-Biz/2025/06/202506230703372406fbbec65dfb_1"
+      }
+    ]
+  },
+  ship: {
+    name: "조선업",
+    model: "LightGBM",
+    threshold: 0.2,
+    avgReturn: "+6.7%",
+    sharpe: "0.58",
+    wordcloud: "조선업_wordcloud.png",
+    keywordNews: [
+      {
+        date: "2025-03-03",
+        news: "국제해양사기구 가 2050년까지 해양 탄소중립 을 목표로 온실가스 감축 규제를 대폭 강화, K-GTB는 탄소중립 실현 위한 세계 최초·유일 해상 실증 플랫폼",
+        score: "4.398",
+        return: "+15.36%",
+        url: "https://www.electimes.com/news/articleView.html?idxno=351093"
+      },
+      {
+        date: "2025-02-10",
+        news: "HD한국조선해양, 인도 투투쿠디에 조선소 건설 추진,VOC 항만청과 협의",
+        score: "0.367",
+        return: "+12.98%",
+        url: "https://www.g-enews.com/article/Global-Biz/2025/02/202502101054369420c8c1c064d_1"
+      }
+    ]
+  },
+  airline: {
+  name: "항공운송",
+  model: "LightGBM",
+  threshold: 0.4,
+  avgReturn: "+3.2%",
+  sharpe: "0.47",
+  wordcloud: "항공운송_wordcloud.png",
+  keywordNews: [
+    {
+      date: "2025-01-23",
+      news: "정부, LCC 운항 안전 집중감독…정비시간 늘리고 안전투자 확대",
+      score: "1.271",
+      return: "+3.23%",
+      url: "https://www.yna.co.kr/view/AKR20250122173100003"
+    },
+    {
+      date: "2025-04-09",
+      news: "대한항공, ‘하늘 위 파인 다이닝’  2년여 간의 개발 과정을 거쳐 전통과 현대의 조화가 어우러진 기내식을 하늘에서 만나볼 수 있게 선보여",
+      score: "1.429",
+      return: "+3.94%",
+      url: "https://www.joongang.co.kr/article/25327082"
+    }
+  ]
+},
+
+electronics: {
+  name: "전자부품",
+  model: "LightGBM",
+  threshold: 0.2,
+  avgReturn: "+4.6%",
+  sharpe: "0.49",
+  wordcloud: "전자부품_wordcloud.png",
+  keywordNews: [
+    {
+      date: "2025-05-11",
+      news: "삼성전자, 세계 최초 500헤르츠 OLED 모니터 출시 오는 12일부터 세계에 순차출시",
+      score: "1.625",
+      return: "+5.96%",
+      url: "https://biz.chosun.com/it-science/ict/2025/05/11/FAGHURCNSZBMJDOKFY5IRC74LE/"
+    },
+    {
+      date: "2025-04-09",
+      news: "로봇과 인공지능을 활용한 더 스마트한 전자 폐기물 분해 기법해결",
+      score: "1.359",
+      return: "+9.28%",
+      url: "https://www.thelec.kr/news/articleView.html?idxno=34560"
+    }
+  ]
+},
+
+metal: {
+  name: "금속제조업",
+  model: "LightGBM",
+  threshold: 0.7,
+  avgReturn: "+5.7%",
+  sharpe: "0.51",
+  wordcloud: "금속제조업_wordcloud.png",
+  keywordNews: [
+    {
+      date: "2025-01-23",
+      news: "포스코DX, 산업용 AI·로봇 적용해 ‘인텔리전트팩토리’ 확산",
+      score: "0.993",
+      return: "+7.83%",
+      url: "http://www.snmnews.com/news/articleView.html?idxno=547416"
+    },
+    {
+      date: "2025-03-09",
+      news: "도널드 트럼프 미국 대통령은 4일 집권 2기 첫 의회 연설에서 한국 등이 향후 알래스카 천연가스 파이프라인 사업에 참여하는 것을 환영한다는 입장을 밝혔다.",
+      score: "3.677",
+      return: "+7.19%",
+      url: "https://www.yna.co.kr/view/AKR20250308031400003"
+    }
+  ]
+},
+automobile: {
+  name: "자동차",
+  model: "CatBoost",
+  threshold: 0.6,
+  avgReturn: "+5.1%",
+  sharpe: "0.50",
+  wordcloud: "자동차_wordcloud.png",
+  keywordNews: [
+    {
+      date: "2025-03-23",
+      news: "기아 EV3, 올해 국내 전기차 판매 1위…2030이 끌었다",
+      score: "2.953",
+      return: "+4.01%",
+      url: "https://www.yna.co.kr/view/AKR20250323008500003"
+    },
+    {
+      date: "2025-06-08",
+      news: "환경과학원, ‘전기차 폐배터리 기술 자료집’ 발간",
+      score: "0.695",
+      return: "+6.36%",
+      url: "https://www.segye.com/newsView/20250606504592"
+    }
+  ]
+},
+
+ict: {
+  name: "정보통신업",
+  model: "CatBoost",
+  threshold: 0.1,
+  avgReturn: "+2.9%",
+  sharpe: "0.46",
+  wordcloud: "정보통신업_wordcloud.png",
+  keywordNews: [
+    {
+      date: "2025-01-30",
+      news: "중국 빅테크 알리바바가 최근 관심을 끈 자국 인공지능 모델 딥시크 를 능가하는 모델을 개발했다는 주장을 내놨다.",
+      score: "0.783",
+      return: "+3.68%",
+      url: "https://www.yna.co.kr/view/AKR20250129036100083"
+    },
+    {
+      date: "2025-01-09",
+      news: "LG CNS, 공모금 6000억원 AI와 클라우드에 집중 투자",
+      score: "2.381",
+      return: "+2.22%",
+      url: "https://www.thelec.kr/news/articleView.html?idxno=32222"
+    }
+  ]
+},
+
+construction: {
+  name: "건설업",
+  model: "CatBoost",
+  threshold: 0.1,
+  avgReturn: "+6.9%",
+  sharpe: "0.55",
+  wordcloud: "건설업_wordcloud.png",
+  keywordNews: [
+    {
+      date: "2025-05-20",
+      news: "재개발·재건축 '용적률 상향' 대통령 탄핵을 둘러싼 정쟁에 묻힌 탓도 있지만 부동산시장이 과열되지 않은 영향이 크다",
+      score: "1.732",
+      return: "+8.38%",
+      url: "https://www.joongang.co.kr/article/25337226"
+    },
+    {
+      date: "2025-05-25",
+      news: "발주 지연에 공공공사 ‘한파’…1년6개월 만에 수주 10조원 밑으로",
+      score: "0.440",
+      return: "+6.39%",
+      url: "https://biz.chosun.com/real_estate/real_estate_general/2025/05/25/5GI6TPJRNVFL3DK6M2EIA4SEXE/"
+    }
+  ]
+},
+oil: {
+  name: "석유정제",
+  model: "CatBoost",
+  threshold: 0.4,
+  avgReturn: "+5.2%",
+  sharpe: "0.53",
+  wordcloud: "석유정제_wordcloud.png",
+  keywordNews: [
+    {
+      date: "2025-02-12",
+      news: "GS칼텍스 작년 4분기 흑자전환…정유 수익성 개선",
+      score: "1.575",
+      return: "+5.41%",
+      url: "https://www.yna.co.kr/view/AKR20250211111700003"
+    },
+    {
+      date: "2025-03-06",
+      news: "알래스카 가스관 사업' 한미 실무협의체 가동·기업참여 타진",
+      score: "1.244",
+      return: "+5.00%",
+      url: "https://www.yna.co.kr/view/AKR20250305109800003"
+    }
+  ]
+},
+
+broadcast: {
+  name: "방송업",
+  model: "CatBoost",
+  threshold: 0.1,
+  avgReturn: "+8.9%",
+  sharpe: "0.59",
+  wordcloud: "방송업_wordcloud.png",
+  keywordNews: [
+    {
+      date: "2025-06-18",
+      news: "美 스트리밍 시청률 45%…기존 방송·케이블에 첫 우위",
+      score: "0.946",
+      return: "+4.73%",
+      url: "https://www.yna.co.kr/view/AKR20250618007500075"
+    },
+    {
+      date: "2025-02-19",
+      news: "18일 방송통신심의위원회는 2024년 올해의 좋은 프로그램 에 장기 기증에 대한 사회적 인식 변화를 촉구한 SBS TV SBS 8뉴스의 울림 된 청년 그 마지막 길 동행 등 4편을 선정해 시상했다고 밝혔다.",
+      score: "0.323",
+      return: "+13.21%",
+      url: "https://www.yna.co.kr/view/AKR20250218127800017"
+    }
+  ]
+},
+
+finance: {
+  name: "금융업",
+  model: "CatBoost",
+  threshold: 0.4,
+  avgReturn: "+3.8%",
+  sharpe: "0.44",
+  wordcloud: "금융업_wordcloud.png",
+  keywordNews: [
+    {
+      date: "2025-04-09",
+      news: "업황 부진·규제 허들'에 발목잡힌 카드사 미래 먹거리 '신기술금융'",
+      score: "0.963",
+      return: "+5.72%",
+      url: "https://www.seoulfn.com/news/articleView.html?idxno=553683"
+    },
+    {
+      date: "2025-05-28",
+      news: "최고가 경신하는 금융지주 주가/최근 원 달러 환율 하락으로 자산 건전성이 개선된 데다 대선을 앞두고 차기 정부의 금융 정책에 대한 기대감이 커지면서 외국인을 중심으로 투자가 확대된 것으로 보인다.",
+      score: "1.247",
+      return: "+2.97%",
+      url: "https://www.segye.com/newsView/20250527515063"
+    },
+    {
+      date: "2025-04-29",
+      news: "삼성증권, 삼성금융통합앱 '모니모'에서 미국 소수점 주식 이벤트",
+      score: "0.558",
+      return: "+2.87%",
+      url: "https://www.industrynews.co.kr/news/articleView.html?idxno=63397"
+    }
+  ]
+},
+insurance: {
+  name: "보험업",
+  model: "LightGBM",
+  threshold: 0.2,
+  avgReturn: "+7.3%",
+  sharpe: "0.57",
+  wordcloud: "보험업_wordcloud.png",
+  keywordNews: [
+    {
+      date: "2025-04-09",
+      news: "한화생명 인도네시아, 2024년 보험료 50% 성장.2025년 혁신과 협력으로 시장 확대 박차",
+      score: "2.653",
+      return: "+6.91%",
+      url: "https://www.g-enews.com/article/Global-Biz/2025/04/20250409095403302fbbec65dfb_1"
+    },
+    {
+      date: "2025-02-13",
+      news: "작년 치매·간병보험 70% 급성장…보험업계 신상품 잇달아",
+      score: "1.1",
+      return: "+7.77%",
+      url: "https://www.yna.co.kr/view/AKR20250212151900002"
+    }
+  ]
+},
+
+food: {
+  name: "식료품",
+  model: "LightGBM",
+  threshold: 0.1,
+  avgReturn: "+4.3%",
+  sharpe: "0.51",
+  wordcloud: "식료품_wordcloud.png",
+  keywordNews: [
+    {
+      date: "2025-03-05",
+      news: `"펩시콜라 제조사인 펩시코가 장 건강을 내세운 프리바이오틱스 음료 시장 붐을 타고 인기를 끌고 있는 프리바이오틱스 음료 브랜드 포피 를 19억5천만 달러에 인수한다고 17일 보도했다.`,
+      score: "0.236",
+      return: "+6.54%",
+      url: "https://www.yna.co.kr/view/MYH20250305004300038"
+    },
+    {
+      date: "2025-03-04",
+      news: "과천시, '푸드테크 연구지원센터' 공모 선정,국비 확보",
+      score: "1.355",
+      return: "+2.10%",
+      url: "https://www.yna.co.kr/view/AKR20250304117200061"
+    }
+  ]
+}
+
+
+
+    };
+    function toggleForecastTable() {
+  const table = document.getElementById("forecast-table");
+  const header = document.querySelector("h2[onclick='toggleForecastTable()']");
+  if (table.style.display === "none") {
+    table.style.display = "block";
+    header.innerHTML = "📘 다음 예측 요약 테이블 ";
+  } else {
+    table.style.display = "none";
+    header.innerHTML = "📘 다음 예측 요약 테이블 ";
+  }
+}
+
+
+    function showChart(id) {
+      document.querySelectorAll('.chart-container').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      const index = { chart6: 0, chart3: 1, chart1: 2 }[id];
+      document.querySelectorAll('.tab-button')[index].classList.add('active');
+    }
+
+    function renderStrategyPage(industryKey) {
+      const data = industryData[industryKey];
+      if (!data) {
+        document.getElementById("strategy-content").innerHTML = `<p>해당 산업군 정보를 찾을 수 없습니다.</p>`;
+        return;
+      }
+
+      const chart6 = `img/6month/${data.name}_strategy_6month.png`;
+      const chart3 = `img/3month/${data.name}_strategy_3month.png`;
+      const chart1 = `img/1month/${data.name}_strategy_1month.png`;
+      const wordcloud = `img/wordcloud/${data.wordcloud}`;
+
+      const newsList = data.keywordNews.map(item => `
+        <li>${item.date}  → ${item.news}<a href="${item.url}" target="_blank" style="color:#1d4ed8; margin-left:6px;">[기사보기]</a></li>
+      `).join("");
+
+      const tableRows = data.keywordNews.map(item => `
+        <tr><td>${item.date}</td><td>${item.score}</td><td>${item.return}</td></tr>
+      `).join("");
+
+      const tblImg1 = `img/table1/${data.name}_table1_2025-07-13.png`;
+      const tblImg2 = `img/table2/${data.name}_table2_2025-07-13.png`;
+    
+
+
+      document.getElementById("strategy-content").innerHTML = `
+      <h2 style="color: #dc2626; border-top: 3px solid #7f1d1d; padding-top: 16px;">
+📋 매수 신호 요약표
+</h2>
+
+<div id="forecast-table" style="margin-top: 12px;">
+  <img src="${tblImg1}" alt="예측 테이블1" style="width: 100%; display: block; margin-bottom: 0; border-radius: 12px 12px 0 0;" />
+
+  <!-- 구분선과 여백 추가 -->
+  <div style="height: 8px;"></div> <!-- 여백 -->
+  <div style="height: 1px; background-color: #e5e7eb;"></div> <!-- 연한 구분선 -->
+  <div style="height: 8px;"></div> <!-- 여백 -->
+
+  <img src="${tblImg2}" alt="예측 테이블2" style="width: 100%; display: block; margin-top: 0; border-radius: 0 0 12px 12px;" />
+</div>
+
+
+
+
+
+  <h2>🏢 대표 기업</h2>
+<p>${representativeCompanies[industryKey]}</p>
+
+        <h2>📊 전략 방법 소개</h2>
+        <p><strong>산업군:</strong> ${data.name} | <strong>전략 시점:</strong> ${tShiftMap[data.name] || "T+1"} | <strong>모델:</strong> ${data.model}</p>
+        <p><strong>매수 조건:</strong> 예측 확률이 ${Math.round(data.threshold * 100)}% 이상일 때 매수합니다.</p>
+        <p><strong>과거 조건 만족 시 평균 수익률:</strong> ${data.avgReturn} | <strong>Sharpe Ratio:</strong> ${data.sharpe}</p>
+
+        
+
+        <h2>📈 전략 vs 시장 수익률 비교</h2>
+        <div class="tabs">
+          <button class="tab-button active" onclick="showChart('chart6')">6개월</button>
+          <button class="tab-button" onclick="showChart('chart3')">3개월</button>
+          <button class="tab-button" onclick="showChart('chart1')">1개월</button>
+        </div>
+        <div id="chart6" class="chart-container active"><img src="${chart6}" /></div>
+        <div id="chart3" class="chart-container"><img src="${chart3}" /></div>
+        <div id="chart1" class="chart-container"><img src="${chart1}" /></div>
+
+        <h2>📅 급등 사례</h2>
+        <table>
+          <thead><tr><th>날짜</th><th>감정 점수</th><th>수익률</th></tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+
+        <h2>☁ 주요 키워드</h2>
+        <img src="${wordcloud}" alt="${data.name} 워드클라우드" />
+        <p>최근 ${data.name} 산업군에서 수익이 급등자주 언급되는 키워드입니다. 이 키워드들은 감정 흐름과 주가에 영향을 미치는 주요 요소들입니다.</p>
+        <h2>📰 관련 뉴스</h2>
+        <ul style="line-height: 1.8;">${newsList}</ul>
+      `;
+    }
+
+    // 실행
+    window.onload = function () {
+      const industry = location.hash.replace("#", "") || "bio";
+      renderStrategyPage(industry);
+    };
+  </script>
+</body>
+</html>

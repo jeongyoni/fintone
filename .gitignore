@@ -1,0 +1,23 @@
+# 대용량 데이터 파일 (25MB 초과)
+뉴스수집/v3_all_news_final_merged.csv
+
+# zip 파일
+*.zip
+
+# Jupyter 체크포인트
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# 환경 변수
+.env
+*.env

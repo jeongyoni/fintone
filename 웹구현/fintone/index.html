@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>FinTone 전략 추천 홈페이지</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f1f5f9, #fefce8);
+      color: #1f2937;
+    }
+    header {
+      background-color: #1e3a8a;
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+    header p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 24px;
+      padding: 60px 20px;
+    }
+    .industry-card {
+      background-color: #ffffff;
+      width: 280px;
+      border-radius: 16px;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+      padding: 24px;
+      box-sizing: border-box;
+      transition: transform 0.2s ease;
+      cursor: pointer;
+    }
+    .industry-card:hover {
+      transform: translateY(-5px);
+    }
+    .industry-card h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #1e3a8a;
+    }
+    .industry-card p {
+      font-size: 14px;
+      color: #475569;
+      margin-bottom: 0;
+    }
+    footer {
+      text-align: center;
+      padding: 40px;
+      font-size: 13px;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>FinTone 산업군별 전략 안내</h1>
+    <p>감정 흐름과 데이터를 바탕으로 각 산업군의 전략 인사이트를 알려드립니다</p>
+  </header>
+
+  <main>
+    <div class="industry-card" onclick="location.href='simulator.html#bio'">
+      <h2>🧬 바이오</h2>
+      <p>감정 흐름이 긍정적으로 전환될 때 주가가 민감하게 반응해요. 상승 전환이 뚜렷한 경우 단기 급등 가능성이 있습니다.</p>
+    </div>
+    <div class="industry-card" onclick="location.href='simulator.html#energy'">
+      <h2>⚡ 에너지</h2>
+      <p>감정 흐름이 완만하게 우상향할 때 안정적인 반등 흐름을 보이는 특징이 있어요.</p>
+    </div>
+    <div class="industry-card" onclick="location.href='simulator.html#semiconductor'">
+      <h2>💻 반도체</h2>
+      <p>감정 흐름뿐 아니라 외국인 수급과 거래량이 함께 개선될 때 상승 가능성이 높아져요.</p>
+    </div>
+    <div class="industry-card" onclick="location.href='simulator.html#ship'">
+      <h2>🚢 조선업</h2>
+      <p>부정적 감정 흐름에서 긍정 전환이 발생할 때 급등이 자주 나타나요. 단기 이슈에 민감합니다.</p>
+    </div>
+    <div class="industry-card" onclick="location.href='simulator.html#airline'">
+      <h2>✈ 항공운송</h2>
+      <p>감정이 상승 반전될 때 주가 반응이 크고, 상승 흐름이 빠르게 나타나는 경우가 많아요.</p>
+    </div>
+    <div class="industry-card" onclick="location.href='simulator.html#electronics'">
+      <h2>🔌 전자부품</h2>
+      <p>감정 상승 흐름과 외국인·기관 수급이 동반될 때 예측력이 높은 패턴이 보여요.</p>
+    </div>
+    <div class="industry-card" onclick="location.href='simulator.html#metal'">
+      <h2>🔩 금속 제조업</h2>
+      <p>감정 흐름이 단기적으로 상승하고 거래량도 증가할 때 상승 흐름이 자주 포착돼요.</p>
+    </div>
+    <div class="industry-card" onclick="location.href='simulator.html#automobile'">
+      <h2>🚗 자동차</h2>
+      <p>긍정적인 감정 흐름이 뚜렷할 때 강한 반등이 나타나는 경우가 많아요.</p>
+    </div>
+    <div class="industry-card" onclick="location.href='simulator.html#ict'">
+      <h2>💻 정보통신업</h2>
+      <p>감정 흐름이 점진적으로 개선되고 거래량이 안정적으로 유지될 때 예측 신호가 강해요.</p>
+    </div>
+    <div class="industry-card" onclick="location.href='simulator.html#construction'">
+      <h2>🏗 건설업</h2>
+      <p>감정 흐름이 지속적으로 좋아지는 구간에서 주가 상승 흐름이 잘 나타나요.</p>
+    </div>
+    <div class="industry-card" onclick="location.href='simulator.html#oil'">
+      <h2>🛢 석유정제</h2>
+      <p>감정 흐름이 부정에서 회복되는 시점에 상승이 자주 포착되며, 심리적 전환점에 민감해요.</p>
+    </div>
+    <div class="industry-card" onclick="location.href='simulator.html#broadcast'">
+      <h2>📺 방송업</h2>
+      <p>감정 흐름이 단기간에 빠르게 개선될 때 상승 반응이 빠르게 나타나요.</p>
+    </div>
+    <div class="industry-card" onclick="location.href='simulator.html#finance'">
+      <h2>💰 금융업</h2>
+      <p>감정 흐름이 안정적으로 유지되고 수급이 동반될 때 예측력이 높게 나타나는 특징이 있어요.</p>
+    </div>
+    <div class="industry-card" onclick="location.href='simulator.html#insurance'">
+      <h2>🏥 보험업</h2>
+      <p>감정 상승 흐름과 수급 개선이 함께 나타날 때 안정적인 주가 반응이 포착돼요.</p>
+    </div>
+    <div class="industry-card" onclick="location.href='simulator.html#food'">
+      <h2>🍔 식품업</h2>
+      <p>감정 흐름이 서서히 좋아지고 변동성이 낮은 환경에서 상승 가능성이 높아지는 경향이 있어요.</p>
+    </div>
+  </main>
+
+  <footer>
+    © 2025 FinTone. 전략은 백테스트 기반이며 실제 투자 판단은 이용자 책임입니다.
+  </footer>
+</body>
+</html>
